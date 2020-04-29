@@ -4,12 +4,14 @@
 
 int main(void)
 {
+	ResetScreen();
 	tagIMAGE_INFO image;
-	COORD pos = { 0,0 };
+	COORD pos = { 28,28 };
 
-	BitmapRead("",&image);
+	BitmapRead("image/colorsample.bmp",&image);
 
-	BitmapDraw(pos, &image);
-
+	BitmapSet(pos, &image);
+	
+	Draw();
 	getchar();
 }
