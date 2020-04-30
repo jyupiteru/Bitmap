@@ -22,8 +22,8 @@ int BasicColorData[16][3] = {//bgrの順
 };
 
 
-unsigned char img[IMAGE_HEIGHT][IMAGE_WIDTH][3] = { 0 };
-unsigned char img8bit[IMAGE_HEIGHT][IMAGE_WIDTH] = {0};
+unsigned char img[SCREEN_HEIGHT][SCREEN_WIDTH][3] = { 0 };
+unsigned char img8bit[SCREEN_HEIGHT][SCREEN_WIDTH] = {0};
 unsigned char bitColorData[256][3];
 
 
@@ -48,7 +48,6 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 
 
 		//ここから情報ヘッダ
-		//fseek(fp, 14, SEEK_SET);					//14行目までの読み飛ばし TODO 読み飛ばししなくてもいいかも
 		fread(&headersize, sizeof(int), 1, fp);		//14-17		情報ヘッダのサイズが入っている
 
 		fread(&width, sizeof(int), 1, fp);			//18-21		画像の横幅取得
@@ -107,13 +106,13 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 			fseek(fp, header, SEEK_SET);//画像データまで飛ばす
 		}
 
-		if (height > IMAGE_HEIGHT)
+		if (height > SCREEN_HEIGHT)
 		{
-			height = IMAGE_HEIGHT - 1;
+			height = SCREEN_HEIGHT - 1;
 		}
-		if (width > IMAGE_WIDTH)
+		if (width > SCREEN_WIDTH)
 		{
-			width = IMAGE_WIDTH - 1;
+			width = SCREEN_WIDTH - 1;
 		}
 
 		i = height - 1;
@@ -196,8 +195,8 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 	if (false
 		|| (pos.X + imageinfo->halfSize.X > 0 //左の完全判定
 		&& pos.Y + imageinfo->halfSize.Y > 0 //上の判定
-		&& pos.X - imageinfo->halfSize.X < IMAGE_WIDTH//右の判定
-		&& pos.Y - imageinfo->halfSize.Y < IMAGE_HEIGHT//下の完全判定
+		&& pos.X - imageinfo->halfSize.X < SCREEN_WIDTH//右の判定
+		&& pos.Y - imageinfo->halfSize.Y < SCREEN_HEIGHT//下の完全判定
 		))
 	{
 
@@ -211,15 +210,15 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 			h_count++;
 		}
 
-		ScreenInfo += (pos.Y - imageinfo->halfSize.Y + h_count) * IMAGE_WIDTH + (pos.X - imageinfo->halfSize.X);//描写開始位置に移動
+		ScreenInfo += (pos.Y - imageinfo->halfSize.Y + h_count) * SCREEN_WIDTH + (pos.X - imageinfo->halfSize.X);//描写開始位置に移動
 
 
 
 
 		while (false
 			|| imageinfo->halfSize.Y*2 > h_count //縦のカウント
-			&& IMAGE_WIDTH * IMAGE_HEIGHT //下の一番マックス 
-			> (pos.Y - imageinfo->halfSize.Y + h_count) * IMAGE_WIDTH//今の画像の表示開始しようとしている行の座標
+			&& SCREEN_WIDTH * SCREEN_HEIGHT //下の一番マックス 
+			> (pos.Y - imageinfo->halfSize.Y + h_count) * SCREEN_WIDTH//今の画像の表示開始しようとしている行の座標
 			)
 		{
 
@@ -234,7 +233,7 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 
 			while (false
 				|| imageinfo->halfSize.X*2 > w_count
-				&& pos.X-imageinfo->halfSize.X + w_count < IMAGE_WIDTH)
+				&& pos.X-imageinfo->halfSize.X + w_count < SCREEN_WIDTH)
 			{
 				/*COORD pos = {w_count,h_count};
 				PrintToScreen("o",pos );*/
@@ -249,7 +248,7 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 			//右の線よりでかいときの処理
 			while (false
 				|| imageinfo->halfSize.X*2-w_count > 0
-				//&& UsingImage->width + ImageDetails->position.X > IMAGE_WIDTH
+				//&& UsingImage->width + ImageDetails->position.X > SCREEN_WIDTH
 				)
 			{
 				ScreenInfo++;
@@ -257,7 +256,7 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 			}
 
 			h_count++;
-			ScreenInfo += (IMAGE_WIDTH - imageinfo->halfSize.X*2);//画像の次の行へ移動
+			ScreenInfo += (SCREEN_WIDTH - imageinfo->halfSize.X*2);//画像の次の行へ移動
 
 		}
 	}
@@ -310,7 +309,7 @@ int Define16Color(int Blue, int Green, int Red)
 */
 void ResetScreen(void)//書き込んだスクリーン用CHAR_INFO渡す
 {
-	COORD coord = {IMAGE_WIDTH,IMAGE_HEIGHT};
+	COORD coord = {SCREEN_WIDTH,SCREEN_HEIGHT};
 	CHAR_INFO* ScreenInfo = &screenInfo.ScreenInfo[0][0];
 	ZeroMemory(ScreenInfo, sizeof(CHAR_INFO) * coord.X * coord.Y);
 }
@@ -322,7 +321,7 @@ void ResetScreen(void)//書き込んだスクリーン用CHAR_INFO渡す
 *
 * @return　なし
 */
-void Draw(void)//IMAGE_SCREEN_INFOを渡す
+void Draw(void)//SCREEN_SCREEN_INFOを渡す
 {
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	WriteConsoleOutput(handle, (CHAR_INFO*)screenInfo.ScreenInfo,

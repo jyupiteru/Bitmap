@@ -8,7 +8,7 @@ int main(void)
 	tagIMAGE_INFO image;
 	COORD pos = { 28,28 };
 
-	BitmapRead("image/colorsample.bmp",&image);
+	BitmapRead("image/Bitmap/os-1.bmp",&image);
 
 	BitmapSet(pos, &image);
 	

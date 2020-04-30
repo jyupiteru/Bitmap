@@ -12,21 +12,21 @@
 #define COLOR_RED		2
 
 
-#define IMAGE_HEIGHT	10
-#define IMAGE_WIDTH		50
+#define SCREEN_HEIGHT	60
+#define SCREEN_WIDTH	60
 
 typedef struct{
 	COORD halfSize;
 
-	CHAR_INFO  imageData[IMAGE_HEIGHT][IMAGE_WIDTH];
+	CHAR_INFO  imageData[SCREEN_HEIGHT][SCREEN_WIDTH];
 }tagIMAGE_INFO;
 
 typedef struct
 {
-	CHAR_INFO ScreenInfo[IMAGE_HEIGHT][IMAGE_WIDTH];//スクリーンに転送するCHAR_INFO ここに使いたい画像をコピー
-	COORD size = { IMAGE_WIDTH , IMAGE_HEIGHT };//書き込む画像のサイズ
+	CHAR_INFO ScreenInfo[SCREEN_HEIGHT][SCREEN_WIDTH];//スクリーンに転送するCHAR_INFO ここに使いたい画像をコピー
+	COORD size = { SCREEN_WIDTH , SCREEN_HEIGHT };//書き込む画像のサイズ
 	COORD StartPoint = { 0,0 };//DrawStartPointを使い描写するので0,0でよし
-	SMALL_RECT ScreenData = { 0,0,IMAGE_WIDTH - 1,IMAGE_HEIGHT };//書き込む画像の上下、左右を入れる
+	SMALL_RECT ScreenData = { 0,0,SCREEN_WIDTH - 1,SCREEN_HEIGHT };//書き込む画像の上下、左右を入れる
 
 }tagSCREEN_INFO;
 
