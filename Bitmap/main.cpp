@@ -6,9 +6,9 @@ int main(void)
 {
 	ResetScreen();
 	tagIMAGE_INFO image;
-	COORD pos = { 28,28 };
+	COORD pos = { 24,24 };
 
-	BitmapRead("image/Bitmap/os-1.bmp",&image);
+	BitmapRead("image/colorsample.bmp",&image);
 
 	BitmapSet(pos, &image);
 	

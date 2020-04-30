@@ -74,6 +74,8 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 			break;
 		}
 
+
+		//ここからカラーパレット coreヘッダ非対応
 		if (colorbit == 8)
 		{
 			fseek(fp, 46, SEEK_SET);
@@ -87,17 +89,17 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 
 			while (i < usecolor)//カラーパレットコピー
 			{
-				fread(&bitColorData[i][COLOR_BLUE], sizeof(unsigned char), 1, fp);
-				fread(&bitColorData[i][COLOR_GREEN], sizeof(unsigned char), 1, fp);
-				fread(&bitColorData[i][COLOR_RED], sizeof(unsigned char), 1, fp);
+				fread(&bitColorData[i][E_COLOR::BLUE], sizeof(unsigned char), 1, fp);
+				fread(&bitColorData[i][E_COLOR::GREEN], sizeof(unsigned char), 1, fp);
+				fread(&bitColorData[i][E_COLOR::RED], sizeof(unsigned char), 1, fp);
 				fseek(fp, sizeof(unsigned char), SEEK_CUR);
 				i++;
 			}
 			i = 0;
 			while (i < usecolor)//パレット16色分類
 			{
-				bitColorData[i][0] = Define16Color(bitColorData[i][COLOR_BLUE],
-					bitColorData[i][COLOR_GREEN], bitColorData[i][COLOR_RED]);
+				bitColorData[i][0] = Define16Color(bitColorData[i][E_COLOR::BLUE],
+					bitColorData[i][E_COLOR::GREEN], bitColorData[i][E_COLOR::RED]);
 				i++;
 			}
 		}
@@ -106,13 +108,15 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 			fseek(fp, header, SEEK_SET);//画像データまで飛ばす
 		}
 
-		if (height > SCREEN_HEIGHT)
+		int j = width;
+
+		if (height > IMAGE_HEIGHT)
 		{
-			height = SCREEN_HEIGHT - 1;
+			height = IMAGE_HEIGHT;
 		}
-		if (width > SCREEN_WIDTH)
+		if (width > IMAGE_WIDTH)
 		{
-			width = SCREEN_WIDTH - 1;
+			width = IMAGE_WIDTH;
 		}
 
 		i = height - 1;
@@ -120,18 +124,18 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 		imageinfo->halfSize.X = width/2;//画像の横を渡す
 
 
-			//BMPの読み込み　BMPは上下逆なので下から詰める
+		//BMPの読み込み　BMPは上下逆なので下から詰める
 		while (0 <= i)//逆縦ループ
 		{
 			w_count = 0;
 
-			while (w_count < width)//横ループ
+			while (w_count < j)//横ループ
 			{
 				if (colorbit == 24)//各画像の色情報をコピー
 				{
-					fread(&img[i][w_count][COLOR_BLUE], sizeof(char), 1, fp);
-					fread(&img[i][w_count][COLOR_GREEN], sizeof(char), 1, fp);
-					fread(&img[i][w_count][COLOR_RED], sizeof(char), 1, fp);
+					fread(&img[i][w_count][E_COLOR::BLUE], sizeof(char), 1, fp);
+					fread(&img[i][w_count][E_COLOR::GREEN], sizeof(char), 1, fp);
+					fread(&img[i][w_count][E_COLOR::RED], sizeof(char), 1, fp);
 				}
 				else if (colorbit == 8)//各画像の色のある場所をコピー
 				{
@@ -166,7 +170,7 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 				if (colorbit == 24)//24bit画像の場合
 				{
 					color = Define16Color
-					(img[i][w_count][COLOR_BLUE], img[i][w_count][COLOR_GREEN], img[i][w_count][COLOR_RED]);
+					(img[i][w_count][E_COLOR::BLUE], img[i][w_count][E_COLOR::GREEN], img[i][w_count][E_COLOR::RED]);
 				}
 				else if (colorbit == 8)//8bit画像の場合
 				{
@@ -203,8 +207,6 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 		int w_count = 0;
 		int h_count = 0;//今どの行が操作対象になっているか
 
-
-
 		while (pos.Y-imageinfo->halfSize.Y + h_count < 0)//画像が上の線を超えたとき映らないように
 		{
 			h_count++;
@@ -235,8 +237,6 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 				|| imageinfo->halfSize.X*2 > w_count
 				&& pos.X-imageinfo->halfSize.X + w_count < SCREEN_WIDTH)
 			{
-				/*COORD pos = {w_count,h_count};
-				PrintToScreen("o",pos );*/
 				ScreenInfo->Attributes = imageinfo->imageData[h_count][w_count].Attributes;
 				ScreenInfo->Char.AsciiChar = imageinfo->imageData[h_count][w_count].Char.AsciiChar;
 
@@ -244,11 +244,9 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 				w_count++;
 			}
 
-
 			//右の線よりでかいときの処理
 			while (false
 				|| imageinfo->halfSize.X*2-w_count > 0
-				//&& UsingImage->width + ImageDetails->position.X > SCREEN_WIDTH
 				)
 			{
 				ScreenInfo++;
@@ -263,19 +261,9 @@ void BitmapSet(COORD pos, tagIMAGE_INFO* imageinfo)
 }
 
 
-
-/**
-* @brief 16色の色に振り分け返す
-* @param Blue  青色の情報
-* @param Green 緑色の情報
-* @param Red   赤色の情報
-* @return color 一番近い色が返される
-* @detail RGBの色を16色の一番近い色にする　距離を計算し最も近い色がその色に近い色になる
-*/
 int Define16Color(int Blue, int Green, int Red)
 {
 	//3次元の距離の求め方(x-x2)^2+(y1-y2)^2+(z1-z2)^2
-
 	int Red_Distance;
 	int Green_Distance;
 	int Blue_Distance;
@@ -285,9 +273,9 @@ int Define16Color(int Blue, int Green, int Red)
 	int colordistance = 1000000;
 	while (16 > colorcount)
 	{
-		Blue_Distance = BasicColorData[colorcount][COLOR_BLUE] - Blue;
-		Green_Distance = BasicColorData[colorcount][COLOR_GREEN] - Green;
-		Red_Distance = BasicColorData[colorcount][COLOR_RED] - Red;
+		Blue_Distance = BasicColorData[colorcount][E_COLOR::BLUE] - Blue;
+		Green_Distance = BasicColorData[colorcount][E_COLOR::GREEN] - Green;
+		Red_Distance = BasicColorData[colorcount][E_COLOR::RED] - Red;
 
 		distance = (Red_Distance * Red_Distance + Green_Distance * Green_Distance + Blue_Distance * Blue_Distance);
 		//もし求めたい色と規定色の距離が前のやつよりも近いなら通る
@@ -302,11 +290,6 @@ int Define16Color(int Blue, int Green, int Red)
 }
 
 
-
-/**
-* @brief スクリーン用CHAR_INFOを初期化する
-* @return　なし
-*/
 void ResetScreen(void)//書き込んだスクリーン用CHAR_INFO渡す
 {
 	COORD coord = {SCREEN_WIDTH,SCREEN_HEIGHT};
@@ -315,13 +298,7 @@ void ResetScreen(void)//書き込んだスクリーン用CHAR_INFO渡す
 }
 
 
-
-/**
-* @brief いろいろ書きこんだスクリーン用CHAR_INFOを裏スクリーンに転送する
-*
-* @return　なし
-*/
-void Draw(void)//SCREEN_SCREEN_INFOを渡す
+void Draw()//SCREEN_SCREEN_INFOを渡す
 {
 	HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	WriteConsoleOutput(handle, (CHAR_INFO*)screenInfo.ScreenInfo,
