@@ -23,7 +23,7 @@ int BasicColorData[16][3] = {//bgrの順
 
 
 unsigned char img[SCREEN_HEIGHT][SCREEN_WIDTH][3] = { 0 };
-unsigned char img8bit[SCREEN_HEIGHT][SCREEN_WIDTH] = {0};
+unsigned char img8bit[SCREEN_HEIGHT][SCREEN_WIDTH] = { 0 };
 unsigned char bitColorData[256][3];
 
 
@@ -44,7 +44,7 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 		int w_count;
 		//ファイルヘッダ
 		fseek(fp, 10, SEEK_SET);
-		fread(&header, sizeof(int), 1, fp);			//10-13		ヘッダーから画像データまでの距離
+		fread(&header, sizeof(int), 1, fp);			//10-13		ファイルヘッダーから画像データまでの距離
 
 
 		//ここから情報ヘッダ
@@ -62,15 +62,12 @@ void BitmapRead(const char* name, tagIMAGE_INFO* imageinfo)
 			fread(&colorbit, sizeof(unsigned int), 1, fp);
 			break;
 
-		case 40://windows V3
+		case  40://windows 
 		case 108://V4ヘッダ
-
 		case 124://V5ヘッダ
+		default: //OS/2 V2
 			fseek(fp, 28, SEEK_SET);
 			fread(&colorbit, sizeof(unsigned int), 1, fp);
-			break;
-
-		default:
 			break;
 		}
 

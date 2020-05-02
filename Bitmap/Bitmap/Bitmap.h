@@ -8,9 +8,9 @@
 
 //!@brief	色振り分け時に使用するマクロ
 enum  E_COLOR{
-BLUE = 0,
-GREEN,	
-RED		
+BLUE = 0,	//!<青
+GREEN,		//!<緑
+RED			//!<赤
 };
 
 //!@brief		画像の縦の最大サイズ
